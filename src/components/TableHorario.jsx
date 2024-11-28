@@ -1,69 +1,80 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 
 const TableHorario = () => {
-    const empleadosList = ['Diego', 'Nancy', 'Marta', 'Ester', 'Manuel', 'Adriana', 'Alejandra', 'Victor'];
-    const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const empleadosList = [
+        'Diego',
+        'Nancy',
+        'Marta',
+        'Servando',
+        'Ester',
+        'Manuel',
+        'Adriana',
+        'Alejandra'
+    ];
+
+    const dias = [
+        'Lunes',
+        'Martes',
+        'Miércoles',
+        'Jueves',
+        'Viernes',
+        'Sábado',
+        'Domingo'
+    ];
+
     const turnos = [
-        { turno: '7:00 AM - 3:00 PM' },
-        { turno: '3:00 PM - 11:00 PM' },
-        { turno: '11:00 PM - 7:00 AM' },
+        { turno: '7:00 AM - 3:00 PM', horas: 8 },
+        { turno: '3:00 PM - 11:00 PM', horas: 8 },
+        { turno: '11:00 PM - 7:00 AM', horas: 8 },
     ];
 
     const [empleados, setEmpleados] = useState([]);
 
     const generarHorario = () => {
-        const turnosAsignados = {
-            '7:00 AM - 3:00 PM': [],
-            '3:00 PM - 11:00 PM': [],
-            '11:00 PM - 7:00 AM': [],
-        };
+        const nuevosEmpleados = [];
+        const diasDescanso = dias.map((_, index) => index).sort(() => Math.random() - 0.5);
 
-        // Asignar a Victor y otro empleado al turno de las 7:00 AM
-        turnosAsignados['7:00 AM - 3:00 PM'].push('Victor');
-        const otrosEmpleados = empleadosList.filter(emp => emp !== 'Victor');
-        turnosAsignados['7:00 AM - 3:00 PM'].push(otrosEmpleados.pop());
+        empleadosList.forEach((nombreEmpleado, index) => {
+            let horarioEmpleado = [];
+            let diaDescanso = diasDescanso[index];
+            let turnoAnterior = null; // Para rastrear el turno anterior del empleado
 
-        // Asignar los demás empleados a turnos aleatorios
-        otrosEmpleados.forEach(nombreEmpleado => {
-            let turnoValido;
-            do {
-                const turnoAleatorio = turnos[Math.floor(Math.random() * turnos.length)];
-                if (turnosAsignados[turnoAleatorio.turno].length < 2) {
-                    turnosAsignados[turnoAleatorio.turno].push(nombreEmpleado);
-                    turnoValido = true;
+            for (let j = 0; j < dias.length; j++) {
+                if (j === diaDescanso) {
+                    horarioEmpleado.push('Día de descanso');
+                    turnoAnterior = null; // Reinicia turno anterior
+                } else {
+                    let turnoElegido;
+
+                    do {
+                        turnoElegido = turnos[Math.floor(Math.random() * turnos.length)];
+                    } while (
+                        // Evitar asignar turno matutino después del turno de noche
+                        (turnoAnterior === '11:00 PM - 7:00 AM' && turnoElegido.turno === '7:00 AM - 3:00 PM')
+                    );
+
+                    horarioEmpleado.push(turnoElegido.turno);
+                    turnoAnterior = turnoElegido.turno; // Actualiza el turno anterior
                 }
-            } while (!turnoValido);
+            }
+
+            nuevosEmpleados.push({ nombre: nombreEmpleado, horario: horarioEmpleado });
         });
 
-        // Generar horarios
-        const nuevosEmpleados = empleadosList.map(nombreEmpleado => ({
-            nombre: nombreEmpleado,
-            horario: dias.map(() => Object.keys(turnosAsignados).find(turno =>
-                turnosAsignados[turno].includes(nombreEmpleado)))
-        }));
+        nuevosEmpleados.push({
+            nombre: 'Víctor',
+            horario: dias.map(() => 'Líder')
+        });
 
         setEmpleados(nuevosEmpleados);
     };
 
-    // Memorizar el renderizado de la tabla para evitar re-renderizados innecesarios
-    const renderizarTabla = useMemo(() => (
-        <tbody>
-            {empleados.map((empleado, index) => (
-                <tr key={index}>
-                    <td className="border border-gray-300 px-4 py-2 text-center">{empleado.nombre}</td>
-                    {empleado.horario.map((horario, i) => (
-                        <td key={i} className={`border border-gray-300 px-4 py-2`}>
-                            {horario}
-                        </td>
-                    ))}
-                </tr>
-            ))}
-        </tbody>
-    ), [empleados]);
-
     return (
         <div>
-            <button onClick={generarHorario} className="mb-4 px-4 py-2 bg-blue-500 text-white rounded">
+            <button
+                onClick={generarHorario}
+                className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+            >
                 Generar Horario
             </button>
             <table className="table-auto w-full border-collapse border border-gray-300">
@@ -71,11 +82,33 @@ const TableHorario = () => {
                     <tr className="bg-gray-200">
                         <th className="border border-gray-300 px-4 py-2">Empleado</th>
                         {dias.map((dia, index) => (
-                            <th key={index} className="border border-gray-300 px-4 py-2">{dia}</th>
+                            <th key={index} className="border border-gray-300 px-4 py-2">
+                                {dia}
+                            </th>
                         ))}
                     </tr>
                 </thead>
-                {renderizarTabla}
+                <tbody>
+                    {empleados.map((empleado, index) => (
+                        <tr key={index}>
+                            <td className="border border-gray-300 px-4 py-2 text-center">{empleado.nombre}</td>
+                            {empleado.horario.map((horario, i) => (
+                                <td
+                                    key={i}
+                                    className={`border border-gray-300 px-4 py-2 ${
+                                        horario === 'Día de descanso'
+                                            ? 'bg-green-500 text-white font-semibold text-center'
+                                            : horario === 'Líder'
+                                            ? 'bg-gray-300 text-black font-semibold text-center'
+                                            : ''
+                                    }`}
+                                >
+                                    {horario}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
             </table>
         </div>
     );
