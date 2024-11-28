@@ -70,19 +70,24 @@ const TableHorario = () => {
     };
 
     return (
-        <div>
+        <div className="overflow-x-auto">
             <button
                 onClick={generarHorario}
-                className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+                className="mb-4 px-4 py-2 bg-blue-500 text-white rounded md:px-6 md:py-3 hover:bg-blue-600"
             >
                 Generar Horario
             </button>
             <table className="table-auto w-full border-collapse border border-gray-300">
                 <thead>
                     <tr className="bg-gray-200">
-                        <th className="border border-gray-300 px-4 py-2">Empleado</th>
+                        <th className="border border-gray-300 px-2 py-1 md:px-4 md:py-2">
+                            Empleado
+                        </th>
                         {dias.map((dia, index) => (
-                            <th key={index} className="border border-gray-300 px-4 py-2">
+                            <th
+                                key={index}
+                                className="border border-gray-300 px-2 py-1 md:px-4 md:py-2"
+                            >
                                 {dia}
                             </th>
                         ))}
@@ -91,17 +96,18 @@ const TableHorario = () => {
                 <tbody>
                     {empleados.map((empleado, index) => (
                         <tr key={index}>
-                            <td className="border border-gray-300 px-4 py-2 text-center">{empleado.nombre}</td>
+                            <td className="border border-gray-300 font-bold px-2 py-1 text-center md:px-4 md:py-2">
+                                {empleado.nombre}
+                            </td>
                             {empleado.horario.map((horario, i) => (
                                 <td
                                     key={i}
-                                    className={`border border-gray-300 px-4 py-2 ${
-                                        horario === 'Día de descanso'
-                                            ? 'bg-green-500 text-white font-semibold text-center'
+                                    className={`border text-sm border-gray-300 px-2 py-1 md:px-4 md:py-2 text-center ${horario === 'Día de descanso'
+                                            ? 'bg-[#479902] text-white font-semibold'
                                             : horario === 'Líder'
-                                            ? 'bg-gray-300 text-black font-semibold text-center'
-                                            : ''
-                                    }`}
+                                                ? 'bg-gray-300 text-black font-semibold'
+                                                : ''
+                                        }`}
                                 >
                                     {horario}
                                 </td>
@@ -112,6 +118,7 @@ const TableHorario = () => {
             </table>
         </div>
     );
+
 };
 
 export default TableHorario;
