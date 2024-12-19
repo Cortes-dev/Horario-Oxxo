@@ -41,9 +41,9 @@ export default function ScheduleGrid() {
     const toggleDescanso = (personIndex, shiftIndex) => {
         const key = `${personIndex}-${shiftIndex}`;
         const newSelectedShifts = new Set(selectedShifts);
-        
+
         newSelectedShifts.has(key) ? newSelectedShifts.delete(key) : newSelectedShifts.add(key);
-        
+
         setSelectedShifts(newSelectedShifts);
     };
 
