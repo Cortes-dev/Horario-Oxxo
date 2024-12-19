@@ -7,18 +7,16 @@ const { dias, usuarios, horariosCompletos } = TableFunction();
 export default function ScheduleGrid() {
     const [selectedShifts, setSelectedShifts] = useState(new Set());
     const [scheduleData, setScheduleData] = useState([]);
-    const [descanso, setDescanso] = useState([]);
 
     // Fechas para mostrar el rango de la semana
-    const startDate = new Date(); // Cambia esto según tu lógica
-    startDate.setDate(startDate.getDate() - startDate.getDay()); // Primer día de la semana
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - startDate.getDay());
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 6); // Último día de la semana
+    endDate.setDate(endDate.getDate() + 6);
 
     useEffect(() => {
         const savedShifts = JSON.parse(localStorage.getItem('selectedShifts')) || [];
         const savedSchedule = JSON.parse(localStorage.getItem('scheduleData')) || [];
-        const savedDescanso = JSON.parse(localStorage.getItem('Descanso')) || [];
 
         setSelectedShifts(new Set(savedShifts));
         setScheduleData(savedSchedule.length ? savedSchedule : generateSchedule());
@@ -27,7 +25,6 @@ export default function ScheduleGrid() {
     useEffect(() => {
         localStorage.setItem('selectedShifts', JSON.stringify(Array.from(selectedShifts)));
         localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
-        localStorage.setItem('Descanso', JSON.stringify(Array.from(selectedShifts)));
     }, [selectedShifts, scheduleData]);
 
     const getRandomShift = () => {
@@ -61,10 +58,16 @@ export default function ScheduleGrid() {
     // Función para compartir como imagen
     const shareAsImage = () => {
         html2canvas(document.querySelector("#schedule-table")).then(canvas => {
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL();
-            link.download = 'horario.png';
-            link.click();
+            canvas.toBlob(blob => {
+                if (blob) {
+                    const shareData = {
+                        title: 'Horario',
+                        text: 'Aquí está el horario de la semana.',
+                        files: [new File([blob], 'horario.png', { type: 'image/png' })]
+                    };
+                    navigator.share(shareData).catch(console.error);
+                }
+            });
         });
     };
 
@@ -90,54 +93,59 @@ export default function ScheduleGrid() {
                         Compartir Tabla
                     </button>
                 </div>
-                <div id="schedule-table" className="grid grid-cols-8 gap-2 p-4 overflow-auto">
-                    {/* Header Row */}
-                    {dias.map((day, index) => (
-                        <div
-                            key={day}
-                            className={`p-2 text-center border border-gray-600 rounded ${index === 0 || index === 4
-                                    ? 'bg-green-800 text-white'
-                                    : 'bg-red-800 text-white'
-                                }`}
-                        >
-                            {day}
-                            {index === 4 && (
-                                <span className="block text-xs">(Hoy pagan)</span>
-                            )}
-                        </div>
-                    ))}
+                <div id="schedule-table" className="p-4 w-full overflow-x-auto">
+                    <div className='block min-w-[600px]'> {/* Asegúrate de que la tabla tenga un ancho mínimo */}
+                        <div className='grid grid-cols-8 gap-2'>
+                            {/* Header Row */}
+                            {dias.map((day, index) => (
+                                <div
+                                    key={day}
+                                    className={`p-2 text-center border border-gray-600 rounded ${index === 0 || index === 4
+                                        ? 'bg-green-800 text-white'
+                                        : 'bg-red-800 text-white'
+                                        }`}
+                                >
+                                    {day}
+                                    {index === 4 && (
+                                        <span className="block text-xs">(Hoy pagan)</span>
+                                    )}
+                                </div>
+                            ))}
 
-                    {/* Schedule Grid */}
-                    {scheduleData.map((person, personIndex) => (
-                        <React.Fragment key={person.name}>
-                            {/* Name Cell */}
-                            <div className="p-2 text-center border flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white">
-                                {person.name}
-                            </div>
-                            {/* Schedule Cells */}
-                            {person.schedule.map((shift, shiftIndex) => {
-                                const key = `${personIndex}-${shiftIndex}`;
-                                return (
-                                    <div
-                                        key={key}
-                                        className={`p-1 text-center ${selectedShifts.has(key) ? 'border-green-700' : ''
-                                            } border text-sm flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white`}
-                                    >
-                                        <button
-                                            type="button"
-                                            onClick={() => toggleDescanso(personIndex, shiftIndex)}
-                                            className={`${selectedShifts.has(key) ? 'font-bold text-green-500' : ''
-                                                }`}
-                                        >
-                                            {selectedShifts.has(key) ? 'Descanso' : shift}
-                                        </button>
+                            {/* Schedule Grid */}
+                            {scheduleData.map((person, personIndex) => (
+                                <React.Fragment key={person.name}>
+                                    {/* Name Cell */}
+                                    <div className="p-2 text-center border flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white">
+                                        {person.name}
                                     </div>
-                                );
-                            })}
-                        </React.Fragment>
-                    ))}
+                                    {/* Schedule Cells */}
+                                    {person.schedule.map((shift, shiftIndex) => {
+                                        const key = `${personIndex}-${shiftIndex}`;
+                                        return (
+                                            <div
+                                                key={key}
+                                                className={`p-1 text-center ${selectedShifts.has(key) ? 'border-green-700' : ''
+                                                    } border text-sm flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white`}
+                                            >
+                                                <button
+                                                    type="button"
+                                                    onClick={() => toggleDescanso(personIndex, shiftIndex)}
+                                                    className={`${selectedShifts.has(key) ? 'font-bold text-green-500' : ''
+                                                        }`}
+                                                >
+                                                    {selectedShifts.has(key) ? 'Descanso' : shift}
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </React.Fragment>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
+
 }
