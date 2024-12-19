@@ -1,7 +1,7 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import TableHorario from './components/TableHorario';
+import HorarioVista from './components/HorarioVista';
 
 const App = () => {
   return (
@@ -9,7 +9,7 @@ const App = () => {
       <Navbar />
 
       <main className="flex-grow p-6">
-        <TableHorario />
+        <HorarioVista/>
       </main>
 
       <Footer />
