@@ -9,7 +9,7 @@ export const TableFunction = () => {
 
 
     const horariosCompletos = horarios.map((horario) => Object.values(horario));
-    const usuarios = ['Diego', 'Ester', 'Marta', 'Victor', 'Servando', 'Manuel', 'Nancy', 'Alejandra', 'Adriana'];
+    const usuarios = ['Diego', 'Ester', 'Marta', 'Adriana', 'Servando', 'Alejandra', 'Nancy', 'Manuel', 'Victor'];
 
     return { dias, usuarios, horariosCompletos };
 };

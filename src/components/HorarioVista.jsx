@@ -41,9 +41,9 @@ export default function ScheduleGrid() {
     const toggleDescanso = (personIndex, shiftIndex) => {
         const key = `${personIndex}-${shiftIndex}`;
         const newSelectedShifts = new Set(selectedShifts);
-
+        
         newSelectedShifts.has(key) ? newSelectedShifts.delete(key) : newSelectedShifts.add(key);
-
+        
         setSelectedShifts(newSelectedShifts);
     };
 
@@ -54,7 +54,16 @@ export default function ScheduleGrid() {
 
     // Función para compartir como imagen
     const shareAsImage = () => {
-        html2canvas(document.querySelector("#schedule-table"), { scale: 2 }).then(canvas => {
+        const tableElement = document.querySelector("#schedule-table");
+        
+        html2canvas(tableElement, { 
+            scale: 2, 
+            useCORS: true,
+            width: tableElement.scrollWidth,
+            height: tableElement.scrollHeight,
+            x: tableElement.getBoundingClientRect().left,
+            y: tableElement.getBoundingClientRect().top,
+        }).then(canvas => {
             canvas.toBlob(blob => {
                 if (blob) {
                     const shareData = {
@@ -69,10 +78,10 @@ export default function ScheduleGrid() {
     };
 
     return (
-        <div className="w-full max-w-7xl mx-auto p-6">
-            <div className="bg-slate-900 p-8 rounded-lg shadow-xl">
-                <h2 className="text-center text-white mb-4">
-                    Semana del <span className='font-bold bg-red-800 rounded-md py-1 px-2 mx-1'>{startDate.toLocaleDateString()}</span> al <span className='font-bold bg-red-800 rounded-md py-1 px-2 mx-1'>{endDate.toLocaleDateString()}</span>
+        <div className="w-full max-w-7xl mx-auto p-6 text-[10px]  lg:text-lg">
+            <div className="bg-slate-900 p-5 lg:p-8 rounded-lg shadow-xl">
+                <h2 className="text-center text-white text-sm flex justify-around items-center mb-4  lg:text-lg lg:block">
+                    Semana <span className='font-bold bg-red-800 rounded-md py-1 px-2 mx-1'>{startDate.toLocaleDateString()}</span>al <span className='font-bold bg-red-800 rounded-md py-1 px-2 mx-1'>{endDate.toLocaleDateString()}</span>
                 </h2>
                 <div className="flex justify-end mb-4">
                     <button
@@ -90,7 +99,7 @@ export default function ScheduleGrid() {
                         Compartir Tabla
                     </button>
                 </div>
-                <div id="schedule-table" className="p-4 w-full overflow-x-auto">
+                <div id="schedule-table" className="p-4 w-full overflow-x-auto bg-slate-900">
                     <div className='block min-w-[600px]'>
                         <div className='grid grid-cols-8 gap-2'>
                             {/* Header Row */}
