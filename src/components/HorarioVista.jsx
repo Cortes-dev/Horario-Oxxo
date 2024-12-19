@@ -90,7 +90,7 @@ export default function ScheduleGrid() {
                         Compartir Tabla
                     </button>
                 </div>
-                <div id="schedule-table" className="grid grid-cols-8 gap-2 p-4">
+                <div id="schedule-table" className="grid grid-cols-8 gap-2 p-4 overflow-auto">
                     {/* Header Row */}
                     {dias.map((day, index) => (
                         <div
