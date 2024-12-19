@@ -8,11 +8,11 @@ export default function ScheduleGrid() {
     const [selectedShifts, setSelectedShifts] = useState(new Set());
     const [scheduleData, setScheduleData] = useState([]);
 
-    // Fechas para mostrar el rango de la semana
+    // Fechas para mostrar el rango de la semana siguiente
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() - startDate.getDay());
+    startDate.setDate(startDate.getDate() + (8 - startDate.getDay())); // Primer día de la próxima semana
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 6);
+    endDate.setDate(endDate.getDate() + 7); // Último día de la próxima semana
 
     useEffect(() => {
         const savedShifts = JSON.parse(localStorage.getItem('selectedShifts')) || [];
@@ -32,7 +32,7 @@ export default function ScheduleGrid() {
     };
 
     const generateSchedule = () => {
-        return usuarios.map((usuario) => ({
+        return usuarios.map(usuario => ({
             name: usuario,
             schedule: Array(7).fill(null).map(() => getRandomShift()),
         }));
@@ -41,23 +41,20 @@ export default function ScheduleGrid() {
     const toggleDescanso = (personIndex, shiftIndex) => {
         const key = `${personIndex}-${shiftIndex}`;
         const newSelectedShifts = new Set(selectedShifts);
-
-        if (newSelectedShifts.has(key)) {
-            newSelectedShifts.delete(key);
-        } else {
-            newSelectedShifts.add(key);
-        }
-
+        
+        newSelectedShifts.has(key) ? newSelectedShifts.delete(key) : newSelectedShifts.add(key);
+        
         setSelectedShifts(newSelectedShifts);
     };
 
     const randomizeSchedule = () => {
         setScheduleData(generateSchedule());
+        setSelectedShifts(new Set()); // Limpiar descansos seleccionados
     };
 
     // Función para compartir como imagen
     const shareAsImage = () => {
-        html2canvas(document.querySelector("#schedule-table")).then(canvas => {
+        html2canvas(document.querySelector("#schedule-table"), { scale: 2 }).then(canvas => {
             canvas.toBlob(blob => {
                 if (blob) {
                     const shareData = {
@@ -75,7 +72,7 @@ export default function ScheduleGrid() {
         <div className="w-full max-w-7xl mx-auto p-6">
             <div className="bg-slate-900 p-8 rounded-lg shadow-xl">
                 <h2 className="text-center text-white mb-4">
-                    Semana del {startDate.toLocaleDateString()} al {endDate.toLocaleDateString()}
+                    Semana del <span className='font-bold bg-red-800 rounded-md py-1 px-2 mx-1'>{startDate.toLocaleDateString()}</span> al <span className='font-bold bg-red-800 rounded-md py-1 px-2 mx-1'>{endDate.toLocaleDateString()}</span>
                 </h2>
                 <div className="flex justify-end mb-4">
                     <button
@@ -94,24 +91,19 @@ export default function ScheduleGrid() {
                     </button>
                 </div>
                 <div id="schedule-table" className="p-4 w-full overflow-x-auto">
-                    <div className='block min-w-[600px]'> {/* Asegúrate de que la tabla tenga un ancho mínimo */}
+                    <div className='block min-w-[600px]'>
                         <div className='grid grid-cols-8 gap-2'>
                             {/* Header Row */}
+                            <div className="p-2 text-center border flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white">
+                                Horario
+                            </div>
                             {dias.map((day, index) => (
-                                <div
-                                    key={day}
-                                    className={`p-2 text-center border border-gray-600 rounded ${index === 0 || index === 4
-                                        ? 'bg-green-800 text-white'
-                                        : 'bg-red-800 text-white'
-                                        }`}
-                                >
+                                <div key={day} className={`p-2 text-center border border-gray-600 rounded ${index === 4 ? 'bg-green-800 text-white' : 'bg-red-800 text-white'}`}>
                                     {day}
-                                    {index === 4 && (
-                                        <span className="block text-xs">(Hoy pagan)</span>
-                                    )}
+                                    <span className="block text-xs">{new Date(startDate.getTime() + index * 24 * 60 * 60 * 1000).toLocaleDateString()}</span>
+                                    {index === 4 && <span className="block text-xs">(Hoy pagan)</span>}
                                 </div>
                             ))}
-
                             {/* Schedule Grid */}
                             {scheduleData.map((person, personIndex) => (
                                 <React.Fragment key={person.name}>
@@ -123,17 +115,8 @@ export default function ScheduleGrid() {
                                     {person.schedule.map((shift, shiftIndex) => {
                                         const key = `${personIndex}-${shiftIndex}`;
                                         return (
-                                            <div
-                                                key={key}
-                                                className={`p-1 text-center ${selectedShifts.has(key) ? 'border-green-700' : ''
-                                                    } border text-sm flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white`}
-                                            >
-                                                <button
-                                                    type="button"
-                                                    onClick={() => toggleDescanso(personIndex, shiftIndex)}
-                                                    className={`${selectedShifts.has(key) ? 'font-bold text-green-500' : ''
-                                                        }`}
-                                                >
+                                            <div key={key} className={`p-1 text-center ${selectedShifts.has(key) ? 'border-green-700' : ''} border text-sm flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white`}>
+                                                <button type="button" onClick={() => toggleDescanso(personIndex, shiftIndex)} className={`${selectedShifts.has(key) ? 'font-bold text-green-500' : ''}`}>
                                                     {selectedShifts.has(key) ? 'Descanso' : shift}
                                                 </button>
                                             </div>
@@ -147,5 +130,4 @@ export default function ScheduleGrid() {
             </div>
         </div>
     );
-
 }

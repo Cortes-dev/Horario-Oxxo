@@ -1,5 +1,5 @@
 export const TableFunction = () => {
-    const dias = ['Personal', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
     const horarios = [
         {
             primera: '7:00 AM - 3:00 PM',
