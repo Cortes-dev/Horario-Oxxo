@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { TableFunction } from '../functions/TableHorario';
 import html2canvas from 'html2canvas';
 
-const { dias, usuarios, horariosCompletos } = TableFunction();
+const { dias, usuarios, horariosCompletos, horariosButton } = TableFunction();
 
 export default function ScheduleGrid() {
     const [selectedShifts, setSelectedShifts] = useState(new Set());
     const [scheduleData, setScheduleData] = useState([]);
 
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() + (8 - startDate.getDay())); // Primer día de la próxima semana
+    startDate.setDate(startDate.getDate() + (8 - startDate.getDay())); //! Primer día de la próxima semana
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 6); // Último día de la próxima semana
+    endDate.setDate(endDate.getDate() + 6); //! Último día de la próxima semana
 
     useEffect(() => {
         const savedShifts = JSON.parse(localStorage.getItem('selectedShifts')) || [];
@@ -33,14 +33,31 @@ export default function ScheduleGrid() {
         schedule: Array(7).fill(null).map(() => getRandomShift()),
     }));
 
+    const horariosButton = ['Primera', 'Segunda', 'Tercera', 'Descanso'];
+
     const toggleDescanso = (personIndex, shiftIndex) => {
-        const key = `${personIndex}-${shiftIndex}`;
-        const newSelectedShifts = new Set(selectedShifts);
-
-        newSelectedShifts.has(key) ? newSelectedShifts.delete(key) : newSelectedShifts.add(key);
-
-        setSelectedShifts(newSelectedShifts);
+        setScheduleData(prevSchedule =>
+            prevSchedule.map((person, i) =>
+                i === personIndex
+                    ? {
+                        ...person,
+                        schedule: person.schedule.map((shift, j) => {
+                            if (j === shiftIndex) {
+                                // Encuentra el índice actual en horariosButton
+                                const currentIndex = horariosButton.indexOf(shift);
+                                // Calcula el siguiente índice en el array
+                                const nextIndex = (currentIndex + 1) % horariosButton.length;
+                                return horariosButton[nextIndex]; // Retorna el siguiente turno
+                            }
+                            return shift;
+                        }),
+                    }
+                    : person
+            )
+        );
     };
+
+
 
     const randomizeSchedule = () => {
         setScheduleData(generateSchedule());
@@ -70,7 +87,7 @@ export default function ScheduleGrid() {
 
     return (
         <div className="w-full max-w-7xl mx-auto p-1 text-[10px] lg:text-lg">
-            <div className="bg-slate-900 p-5 lg:p-8 rounded-lg shadow-xl">
+            <div id="schedule-table" className="bg-slate-900 p-5 lg:p-8 rounded-lg shadow-xl">
                 <h2 className="text-center text-white text-sm flex justify-around items-center mb-4 lg:text-lg md:block">
                     Semana{' '}
                     <span className='font-bold bg-red-800 rounded-md py-1 px-2 mx-1'>
@@ -83,10 +100,7 @@ export default function ScheduleGrid() {
                 </h2>
 
                 {/* Tabla oculta en móviles */}
-                <div
-                    id="schedule-table"
-                    className="p-4 w-full overflow-x-auto"
-                >
+                <div className="p-4 w-full overflow-x-auto">
                     <div className="block min-w-[600px]">
                         <div className="grid grid-cols-8 gap-2">
                             {/* Header Row */}
@@ -97,8 +111,7 @@ export default function ScheduleGrid() {
                                 <div
                                     key={day}
                                     className={`p-2 text-center border border-gray-600 rounded ${index === 3 ? 'bg-green-800 text-white' : 'bg-red-800 text-white'
-                                        }`}
-                                >
+                                        }`}>
                                     {day}
                                     <span className="block text-xs">
                                         {new Date(
@@ -110,30 +123,31 @@ export default function ScheduleGrid() {
                                     </span>
                                 </div>
                             ))}
-                            {/* Schedule Grid */}
+                            {/* Schedule Rows */}
                             {scheduleData.map((person, personIndex) => (
                                 <React.Fragment key={person.name}>
-                                    {/* Name Cell */}
-                                    <div className="p-2 text-center border flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white">
+                                    <div className="p-2 text-center border flex items-center justify-center border-gray-600  rounded bg-slate-800 text-white">
                                         {person.name}
                                     </div>
-                                    {/* Schedule Cells */}
+                                    {/* Horarios */}
                                     {person.schedule.map((shift, shiftIndex) => {
                                         const key = `${personIndex}-${shiftIndex}`;
                                         return (
                                             <div
                                                 key={key}
                                                 className={`p-1 text-center ${selectedShifts.has(key) ? 'border-green-700' : ''
-                                                    } border text-sm flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white`}
-                                            >
+                                                    } border text-sm flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white`}>
+
                                                 <button
                                                     type="button"
                                                     onClick={() => toggleDescanso(personIndex, shiftIndex)}
-                                                    className={`${selectedShifts.has(key) ? 'font-bold text-green-500' : ''
-                                                        }`}
+                                                    className={`px-2 py-1 rounded font-bold text-center 
+        ${person.schedule[shiftIndex] === 'Descanso' ? 'text-green-500 bg-slate-900' : '' }`}
                                                 >
-                                                    {selectedShifts.has(key) ? 'Descanso' : shift}
+                                                    {person.schedule[shiftIndex]}
                                                 </button>
+
+
                                             </div>
                                         );
                                     })}
