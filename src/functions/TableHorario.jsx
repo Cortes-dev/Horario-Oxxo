@@ -1,7 +1,7 @@
 export const TableFunction = () => {
     const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    const horariosCompletos = ['Primera', 'Segunda', 'Tercera'];
-    const horariosButton = ['Primera', 'Segunda', 'Tercera', 'Descanso'];
+    const horariosCompletos = ['Primera', 'Segunda', 'Tercera', '12 PM - 8 PM'];
+    const horariosButton = ['Primera', 'Segunda', 'Tercera', 'Descanso', '12 PM-8 PM'];
 
 
     const usuarios = ['Diego', 'Ester', 'Marta', 'Adriana', 'Servando', 'Alejandra', 'Nancy', 'Manuel', 'Victor'];
