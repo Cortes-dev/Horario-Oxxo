@@ -87,7 +87,7 @@ export default function ScheduleGrid() {
 
     return (
         <div className="w-full max-w-7xl mx-auto p-1 text-[10px] lg:text-lg">
-            <div id="schedule-table" className="bg-slate-900 p-5 lg:p-8 rounded-lg shadow-xl">
+            <div  className="bg-slate-900 block w-full p-5 lg:p-8 rounded-lg shadow-xl">
                 <h2 className="text-center text-white text-sm flex justify-around items-center mb-4 lg:text-lg md:block">
                     Semana{' '}
                     <span className='font-bold bg-red-800 rounded-md py-1 px-2 mx-1'>
@@ -101,7 +101,7 @@ export default function ScheduleGrid() {
 
                 {/* Tabla oculta en móviles */}
                 <div className="p-4 w-full overflow-x-auto">
-                    <div className="block min-w-[600px]">
+                    <div id="schedule-table" className="block min-w-[600px] bg-slate-900 p-3">
                         <div className="grid grid-cols-8 gap-2">
                             {/* Header Row */}
                             <div className="p-2 text-center border flex items-center justify-center border-gray-600 rounded bg-slate-800 text-white">
@@ -142,7 +142,7 @@ export default function ScheduleGrid() {
                                                     type="button"
                                                     onClick={() => toggleDescanso(personIndex, shiftIndex)}
                                                     className={`px-2 py-1 rounded font-bold text-center 
-        ${person.schedule[shiftIndex] === 'Descanso' ? 'text-green-500 bg-slate-900' : '' }`}
+        ${person.schedule[shiftIndex] === 'Descanso' ? 'text-green-500 bg-slate-900' : ''}`}
                                                 >
                                                     {person.schedule[shiftIndex]}
                                                 </button>
