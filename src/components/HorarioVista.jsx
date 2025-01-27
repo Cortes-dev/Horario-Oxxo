@@ -9,7 +9,7 @@ export default function ScheduleGrid() {
     const [scheduleData, setScheduleData] = useState([]);
 
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() + (8 - startDate.getDay())); //! Primer día de la próxima semana
+    startDate.setDate(startDate.getDate() + (1 - startDate.getDay())); //! Primer día de la próxima semana
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + 6); //! Último día de la próxima semana
 
